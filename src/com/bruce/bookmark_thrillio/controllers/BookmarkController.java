@@ -38,31 +38,50 @@ public class BookmarkController extends HttpServlet {
 		RequestDispatcher dispatcher = null;
 		System.out.println("Servlet path: " + request.getServletPath());
 		
-		if (request.getServletPath().contains("save")) {
-			// save
-			dispatcher = request.getRequestDispatcher("/mybooks.jsp");
-			
-			String bid = request.getParameter("bid");
-			
-			User user = UserManager.getInstance().getUser(5);
-			Bookmark bookmark = BookmarkManager.getInstance().getBook(Long.parseLong(bid));
-			BookmarkManager.getInstance().saveUserBookmark(user, bookmark);
-			
-			Collection<Bookmark> list = BookmarkManager.getInstance().getBooks(true, 5);
-			request.setAttribute("books", list);
-			
-		} else if (request.getServletPath().contains("mybooks")) {
-			// mybooks
-			dispatcher = request.getRequestDispatcher("/mybooks.jsp");
-			Collection<Bookmark> list = BookmarkManager.getInstance().getBooks(true, 5);
-			request.setAttribute("books", list);
+		if (request.getSession().getAttribute("userId") != null) {
+			long userId = (long)request.getSession().getAttribute("userId");
+		
+			if (request.getServletPath().contains("save")) {
+				// save
+				dispatcher = request.getRequestDispatcher("/mybooks.jsp");
+				
+				String bid = request.getParameter("bid");
+				
+				User user = UserManager.getInstance().getUser(userId);
+				Bookmark bookmark = BookmarkManager.getInstance().getBook(Long.parseLong(bid));
+				BookmarkManager.getInstance().saveUserBookmark(user, bookmark);
+				
+				Collection<Bookmark> list = BookmarkManager.getInstance().getBooks(true, userId);
+				request.setAttribute("books", list);
+				
+			} else if (request.getServletPath().contains("mybooks")) {
+				// mybooks
+				dispatcher = request.getRequestDispatcher("/mybooks.jsp");
+				Collection<Bookmark> list = BookmarkManager.getInstance().getBooks(true, userId);
+				request.setAttribute("books", list);
+			} else {
+				dispatcher = request.getRequestDispatcher("/browse.jsp");
+				Collection<Bookmark> list = BookmarkManager.getInstance().getBooks(false, userId);
+				request.setAttribute("books", list);
+			}
 		} else {
-			dispatcher = request.getRequestDispatcher("/browse.jsp");
-			Collection<Bookmark> list = BookmarkManager.getInstance().getBooks(false, 5);
-			request.setAttribute("books", list);
+			// session is expiried or 1st time visit
+			dispatcher = request.getRequestDispatcher("/login.jsp");
+			
 		}
+		
+		
+		
 
 		dispatcher.forward(request, response);
+	}
+	
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 	public void saveUserBookmark(User user, Bookmark bookmark) {

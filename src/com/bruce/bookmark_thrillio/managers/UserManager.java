@@ -6,6 +6,7 @@ import com.bruce.bookmark_thrillio.constants.Gender;
 import com.bruce.bookmark_thrillio.constants.UserType;
 import com.bruce.bookmark_thrillio.dao.UserDao;
 import com.bruce.bookmark_thrillio.entities.User;
+import com.bruce.bookmark_thrillio.util.StringUtil;
 
 public class UserManager {
 	private static UserManager instance = new UserManager(); // for Singleton pattern
@@ -37,6 +38,11 @@ public class UserManager {
 
 	public User getUser(long userId) {
 		return dao.getUser(userId);
+		
+	}
+
+	public long authenticate(String email, String password) {
+		return dao.authenticate(email, StringUtil.encodePassword(password));
 		
 	}
 	

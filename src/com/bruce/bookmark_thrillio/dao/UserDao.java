@@ -18,8 +18,10 @@ public class UserDao {
 		return DataStore.getUsers();
 	}
 
+	
+	
 	public User getUser(long userId) {
-User user = null;
+		User user = null;
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -50,5 +52,31 @@ User user = null;
 		}	
 		
 		return user;
+		
+	}
+
+
+
+	public long authenticate(String email, String password) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false", "root", "123456");
+				Statement stmt = conn.createStatement();) {	
+			String query = "Select id from User where email = '" + email + "' and password = '" + password + "'";
+			System.out.println("query: " + query);
+			ResultSet rs = stmt.executeQuery(query);
+			
+			while (rs.next()) {
+				return rs.getLong("id");				
+	    	}			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+		
+		return -1;
 	}
 }
